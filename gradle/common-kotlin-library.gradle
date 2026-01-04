@@ -1,0 +1,15 @@
+apply plugin: 'kotlin'
+
+apply from: "$rootDir/gradle/common-kotlin-kapt.gradle"
+
+test {
+    // listen to events in the test execution lifecycle
+    beforeTest { descriptor ->
+        logger.lifecycle("Running test: " + descriptor)
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines"
+}

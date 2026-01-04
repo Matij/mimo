@@ -1,0 +1,64 @@
+apply plugin: 'com.google.devtools.ksp'
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'org.jetbrains.kotlin.android'
+
+android {
+    compileSdkVersion Integer.parseInt(libs.versions.compileSdk.get())
+
+    defaultConfig {
+        minSdkVersion Integer.parseInt(libs.versions.minSdk.get())
+        targetSdkVersion Integer.parseInt(libs.versions.targetSdk.get())
+
+        def javaVersion = Integer.parseInt(libs.versions.javaVersion.get())
+        compileOptions {
+            coreLibraryDesugaringEnabled true
+            sourceCompatibility javaVersion
+            targetCompatibility javaVersion
+        }
+
+        kotlinOptions {
+            jvmTarget = javaVersion.toString()
+            freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+        }
+
+        vectorDrawables {
+            useSupportLibrary true
+        }
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            consumerProguardFiles 'consumer-rules.pro'
+        }
+    }
+
+    testOptions {
+        unitTests {
+            returnDefaultValues = true
+            includeAndroidResources = true
+        }
+    }
+
+    compileOptions {
+        coreLibraryDesugaringEnabled = true
+    }
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(Integer.parseInt(libs.versions.javaVersion.get())))
+    }
+}
+
+dependencies {
+    coreLibraryDesugaring libs.desugar.jdk.libs
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+}
