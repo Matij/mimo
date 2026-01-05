@@ -18,6 +18,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "BASE_URL", "\"https://mimochallenge.azurewebsites.net/api\"")
     }
 
     buildTypes {
@@ -38,13 +40,22 @@ android {
     kotlin {
         jvmToolchain(libs.versions.javaVersion.get().toInt())
     }
+
+    buildFeatures {
+        buildConfig = true
+        compose = true
+    }
 }
 
 dependencies {
     implementation(project(":libraries:ui"))
     implementation(project(":libraries:mvi"))
+    implementation(project(":libraries:di-android"))
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    // Dagger-Hilt
+    implementation(libs.hilt.android)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

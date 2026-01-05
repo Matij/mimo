@@ -1,16 +1,15 @@
 plugins {
-    alias(libs.plugins.jetbrains.kotlin.jvm)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
 }
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-}
-kotlin {
-    compilerOptions {
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
-    }
+
+apply(from = "$rootDir/gradle/common-android-library.gradle")
+
+android {
+    namespace = "fm.mimo.data"
 }
 
 dependencies {
+    implementation(project(":libraries:rest"))
     implementation(project(":domain"))
 }

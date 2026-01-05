@@ -22,6 +22,8 @@ dependencyResolutionManagement {
 rootProject.name = "Mimo"
 include(":app")
 include(":domain")
+include(":libraries:di-android")
 include(":libraries:mvi")
+include(":libraries:rest")
 include(":libraries:ui")
 include(":data")

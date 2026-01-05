@@ -1,0 +1,14 @@
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+}
+
+apply from: "$rootDir/gradle/common-android-library.gradle"
+
+android {
+    namespace = "fm.mimo.di_android"
+}
+
+dependencies {
+    implementation "javax.inject:javax.inject:1"
+}
