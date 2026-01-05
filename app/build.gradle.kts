@@ -2,6 +2,12 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.google.devtools.ksp)
+    alias(libs.plugins.hilt.android.gradle)
+}
+
+hilt {
+    enableAggregatingTask = false
 }
 
 android {
@@ -19,7 +25,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "BASE_URL", "\"https://mimochallenge.azurewebsites.net/api\"")
+        buildConfigField("String", "BASE_URL", "\"https://mimochallenge.azurewebsites.net/api/\"")
+        buildConfigField("Boolean", "MOCK_ENV", "true")
     }
 
     buildTypes {
@@ -48,6 +55,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":data"))
     implementation(project(":libraries:ui"))
     implementation(project(":libraries:mvi"))
     implementation(project(":libraries:di-android"))
@@ -56,6 +64,8 @@ dependencies {
 
     // Dagger-Hilt
     implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
+    ksp(libs.hilt.compiler)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

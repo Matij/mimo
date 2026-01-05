@@ -1,6 +1,7 @@
 package fm.mimo.rest.di
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -9,7 +10,6 @@ import dagger.multibindings.IntoSet
 import dagger.multibindings.Multibinds
 import fm.mimo.di_android.ApiBaseUrl
 import fm.mimo.di_android.BuildConfigDebug
-import fm.mimo.di_android.InterceptorsEnabled
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -57,16 +57,14 @@ object RestModule {
     @OkHttpNetworkInterceptor
     fun provideLoggingInterceptor(
         @BuildConfigDebug debugBuild: Boolean,
-        @InterceptorsEnabled interceptorsEnabled: Boolean,
     ): Interceptor =
         HttpLoggingInterceptor().apply {
             level =
-                if (debugBuild && interceptorsEnabled) HttpLoggingInterceptor.Level.BODY
+                if (debugBuild) HttpLoggingInterceptor.Level.BODY
                 else HttpLoggingInterceptor.Level.NONE
         }
 
     @Provides
-    @Singleton
     fun provideRetrofit(
         @ApiBaseUrl baseUrl: String,
         okHttpClient: OkHttpClient,
@@ -78,6 +76,9 @@ object RestModule {
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
+
+    @Provides
+    fun provideGson(): Gson = GsonBuilder().create()
 
     @Module
     @InstallIn(SingletonComponent::class)

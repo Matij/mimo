@@ -1,4 +1,8 @@
 package fm.mimo.domain.model
 
-class Lesson {
-}
+data class Lesson(
+    val id: Int,
+    val fields: List<Field>,
+    val input: Input?,
+    val hasInput: Boolean,
+)

@@ -11,11 +11,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeScreenViewModel = viewModel(),
+    viewModel: HomeScreenViewModelImpl = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
     with(state) {
