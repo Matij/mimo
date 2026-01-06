@@ -17,4 +17,7 @@ dependencies {
     api(libs.androidx.ui)
     api(libs.androidx.ui.graphics)
     api(libs.androidx.ui.tooling.preview)
+
+    api(libs.androidx.core.ktx)
+    api(libs.androidx.appcompat)
 }
