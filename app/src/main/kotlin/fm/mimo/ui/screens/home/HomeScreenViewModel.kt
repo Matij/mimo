@@ -6,6 +6,7 @@ import fm.mimo.DispatcherProvider
 import fm.mimo.R
 import fm.mimo.domain.model.Lesson
 import fm.mimo.domain.usecase.GetLessonsUseCase
+import fm.mimo.domain.usecase.StoreLessonCompletionUseCase
 import fm.mimo.lib.mvi.BaseViewModel
 import fm.mimo.ui.UiText
 import fm.mimo.ui.UiText.DynamicString
@@ -16,17 +17,19 @@ import fm.mimo.ui.screens.home.Action.PrimaryButtonTap
 import fm.mimo.ui.screens.home.ContentItem.ContentWithInput
 import fm.mimo.ui.screens.home.ContentItem.ContentWithoutInput
 import fm.mimo.ui.screens.home.Effect.LessonsDone
-import jakarta.inject.Inject
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 abstract class HomeScreenViewModel : BaseViewModel<State, Action, Effect>()
 
 @HiltViewModel
 class HomeScreenViewModelImpl @Inject constructor(
-    private val useCase: GetLessonsUseCase,
+    private val getLessonsUseCase: GetLessonsUseCase,
+    private val storeLessonCompletionUseCase: StoreLessonCompletionUseCase,
     private val dispatcherProvider: DispatcherProvider,
 ) : HomeScreenViewModel() {
     private var lessons: List<Lesson> = emptyList()
+    private var lessonStartedAt: Long? = null
 
     override fun initState() = State()
 
@@ -43,7 +46,7 @@ class HomeScreenViewModelImpl @Inject constructor(
     }
 
     private fun fetchData() = viewModelScope.launch(dispatcherProvider.io()) {
-        lessons = useCase.retrieveLessons()
+        lessons = getLessonsUseCase.retrieveLessons()
         val firstLesson = lessons.firstOrNull()
         updateLessonState(firstLesson)
     }
@@ -56,9 +59,13 @@ class HomeScreenViewModelImpl @Inject constructor(
         val correctAnswer = validateAnswer(contentWithInputOnScreen)
 
         if (contentWithInputOnScreen == null || correctAnswer) {
-            val currentLessonIndex = lessons.indexOfFirst { it.id == uiState.value.currentLessonId }
+            val currentLessonId = uiState.value.currentLessonId
+            if (currentLessonId != null) onLessonCompleted(currentLessonId)
+
+            val currentLessonIndex = lessons.indexOfFirst { it.id == currentLessonId }
             val nextLesson = lessons.getOrNull(currentLessonIndex + 1)
             updateLessonState(nextLesson)
+
             if (nextLesson == null) submitEffect(LessonsDone)
         } else {
             submitState { copy(errorMessage = StringResource(R.string.error_message_incorrect_answer)) }
@@ -80,8 +87,10 @@ class HomeScreenViewModelImpl @Inject constructor(
         }
     }
 
-    private fun updateLessonState(lesson: Lesson?) {
-        if (lesson == null) return
+    private fun updateLessonState(lesson: Lesson?) = viewModelScope.launch {
+        if (lesson == null) return@launch
+
+        lessonStartedAt = System.currentTimeMillis()
 
         submitState {
             copy(
@@ -95,6 +104,11 @@ class HomeScreenViewModelImpl @Inject constructor(
                 buttonEnabled = lesson.hasInput.not(),
             )
         }
+    }
+
+    private fun onLessonCompleted(currentLessonId: Int) = viewModelScope.launch(dispatcherProvider.io()) {
+        val startedAt = lessonStartedAt ?: return@launch
+        storeLessonCompletionUseCase(currentLessonId, startedAt, System.currentTimeMillis())
     }
 
     private fun Lesson.buildItems(): ContentItem {
@@ -164,7 +178,7 @@ class HomeScreenViewModelImpl @Inject constructor(
     }
 
     private fun validateAnswer(contentItemContentWithInput: ContentWithInput?): Boolean {
-        if (contentItemContentWithInput == null) return false
+        if (contentItemContentWithInput == null) return true
         val expectedAnswer = contentItemContentWithInput.expectedInputText
         val currentInputText = contentItemContentWithInput.currentInputText
         return currentInputText == expectedAnswer
