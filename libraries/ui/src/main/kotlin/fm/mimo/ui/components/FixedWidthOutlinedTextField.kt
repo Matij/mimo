@@ -3,6 +3,7 @@ package fm.mimo.ui.components
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -11,6 +12,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import fm.mimo.ui.fromHex
 
 @Composable
 fun FixedWidthOutlinedTextField(
@@ -18,13 +20,18 @@ fun FixedWidthOutlinedTextField(
     onValueChange: (String) -> Unit,
     maxChars: Int,
     modifier: Modifier = Modifier,
-    textStyle: TextStyle = MaterialTheme.typography.bodyLarge
+    textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
+    outlineHexColor: String? = null,
 ) {
     val width = rememberTextFieldWidthForChars(
         maxChars = maxChars,
         textStyle = textStyle,
         horizontalPadding = TextFieldDefaultsPadding.Outlined
     )
+
+    val outlineColor = remember(outlineHexColor) {
+        outlineHexColor?.fromHex()
+    }
 
     OutlinedTextField(
         value = value,
@@ -33,7 +40,11 @@ fun FixedWidthOutlinedTextField(
         },
         modifier = modifier.width(width),
         textStyle = textStyle,
-        singleLine = true
+        singleLine = true,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = outlineColor ?: MaterialTheme.colorScheme.outline,
+            unfocusedBorderColor = outlineColor ?: MaterialTheme.colorScheme.outline
+        ),
     )
 }
 
@@ -61,7 +72,6 @@ fun rememberTextFieldWidthForChars(
 }
 
 object TextFieldDefaultsPadding {
-    val Filled = 16.dp       // TextField
-    val Outlined = 12.dp     // OutlinedTextField
+    val Outlined = 12.dp
 }
 

@@ -88,6 +88,7 @@ class HomeScreenViewModelImpl @Inject constructor(
                     trailingText = computeTrailingText(),
                     inputLength = inputText.length,
                     expectedInputText = DynamicString(inputText),
+                    outlineColor = retrieveOutlineColor()
                 )
             }
 
@@ -121,5 +122,11 @@ class HomeScreenViewModelImpl @Inject constructor(
 
     private fun Lesson.computeSolutionText(): String {
         return fields.joinToString("") { it.text }
+    }
+
+    private fun Lesson.retrieveOutlineColor(): String? {
+        val expectedInputText = computeInputText()
+        val field = fields.firstOrNull { it.text == expectedInputText }
+        return field?.color
     }
 }

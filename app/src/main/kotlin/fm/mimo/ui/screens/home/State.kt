@@ -24,6 +24,7 @@ sealed interface ContentItem {
         val currentInputText: UiText = DynamicString(""),
         val expectedInputText: UiText,
         val inputLength: Int,
+        val outlineColor: String?,
     ) : ContentItem
 
     data class ContentWithoutInput(
