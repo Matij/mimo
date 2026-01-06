@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import fm.mimo.ui.components.FixedWidthOutlinedTextField
+import fm.mimo.ui.fromHex
 import fm.mimo.ui.screens.home.Action.Initialize
 import fm.mimo.ui.screens.home.Action.PrimaryButtonTap
 import fm.mimo.ui.screens.home.ContentItem.ContentWithInput
@@ -70,6 +71,7 @@ fun HomeScreen(
                         is ContentWithoutInput -> Text(
                             modifier = Modifier.fillMaxWidth(),
                             text = item.text.asString(),
+                            color = item.textColor?.fromHex() ?: Color.Unspecified,
                         )
 
                         is ContentWithInput -> ContentRow(content = item) {
@@ -118,6 +120,7 @@ private fun ContentRow(
         Text(
             modifier = Modifier.fillMaxWidth(),
             text = content.leadingText.asString(),
+            color = content.leadingTextColor?.fromHex() ?: Color.Unspecified,
         )
         FixedWidthOutlinedTextField(
             value = content.currentInputText,
@@ -128,6 +131,7 @@ private fun ContentRow(
         Text(
             modifier = Modifier.fillMaxWidth(),
             text = content.trailingText.asString(),
+            color = content.trailingTextColor?.fromHex() ?: Color.Unspecified,
         )
     }
 }

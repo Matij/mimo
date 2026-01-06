@@ -14,6 +14,7 @@ import fm.mimo.ui.screens.home.Action.Initialize
 import fm.mimo.ui.screens.home.Action.InputValueChange
 import fm.mimo.ui.screens.home.Action.PrimaryButtonTap
 import fm.mimo.ui.screens.home.ContentItem.ContentWithInput
+import fm.mimo.ui.screens.home.ContentItem.ContentWithoutInput
 import fm.mimo.ui.screens.home.Effect.LessonsDone
 import jakarta.inject.Inject
 import kotlinx.coroutines.launch
@@ -103,32 +104,46 @@ class HomeScreenViewModelImpl @Inject constructor(
                 ContentWithInput(
                     lessonId = id,
                     leadingText = computeLeadingText(),
+                    leadingTextColor = computeLeadingTextColor(),
                     trailingText = computeTrailingText(),
+                    trailingTextColor = computeTrailingTextColor(),
                     inputLength = inputText.length,
                     expectedInputText = inputText,
                     outlineColor = retrieveOutlineColor()
                 )
             }
 
-            else -> ContentItem.ContentWithoutInput(
-                lessonId = id,
-                text = DynamicString(computeSolutionText()),
-            )
+            else -> {
+                val text = computeSolutionText()
+                ContentWithoutInput(
+                    lessonId = id,
+                    text = DynamicString(text),
+                    textColor = fields.firstOrNull { it.text == text }?.color,
+                )
+            }
         }
     }
 
-    private fun Lesson.computeLeadingText(): UiText {
-        val solutionText = computeSolutionText()
-        val expectedInputText = computeInputText()
-        val leadingText = solutionText.substringBefore(expectedInputText)
-        return DynamicString(leadingText)
-    }
+    private fun Lesson.computeLeadingText(): UiText =
+        DynamicString(splitSolutionText().leading)
 
-    private fun Lesson.computeTrailingText(): UiText {
-        val solutionText = computeSolutionText()
-        val expectedInputText = computeInputText()
-        val trailingText = solutionText.substringAfter(expectedInputText)
-        return DynamicString(trailingText)
+    private fun Lesson.computeTrailingText(): UiText =
+        DynamicString(splitSolutionText().trailing)
+
+    private fun Lesson.computeLeadingTextColor(): String? =
+        fields.firstOrNull { it.text == splitSolutionText().leading }?.color
+
+    private fun Lesson.computeTrailingTextColor(): String? =
+        fields.firstOrNull { it.text == splitSolutionText().trailing }?.color
+
+    private fun Lesson.splitSolutionText(): SplitText {
+        val solution = computeSolutionText()
+        val input = computeInputText()
+
+        return SplitText(
+            leading = solution.substringBefore(input),
+            trailing = solution.substringAfter(input)
+        )
     }
 
     private fun Lesson.computeInputText(): String {

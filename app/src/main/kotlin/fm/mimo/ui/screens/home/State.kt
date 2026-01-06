@@ -21,7 +21,9 @@ sealed interface ContentItem {
     data class ContentWithInput(
         val lessonId: Int,
         val leadingText: UiText,
+        val leadingTextColor: String?,
         val trailingText: UiText,
+        val trailingTextColor: String?,
         val currentInputText: String = "",
         val expectedInputText: String,
         val inputLength: Int,
@@ -31,6 +33,7 @@ sealed interface ContentItem {
     data class ContentWithoutInput(
         val lessonId: Int,
         val text: UiText,
+        val textColor: String?,
     ) : ContentItem
 }
 
@@ -43,3 +46,8 @@ sealed interface Action : UiAction {
 sealed interface Effect : UiEffect {
     data object LessonsDone : Effect
 }
+
+data class SplitText(
+    val leading: String,
+    val trailing: String
+)
