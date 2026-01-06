@@ -17,6 +17,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -25,13 +26,24 @@ import fm.mimo.ui.screens.home.Action.Initialize
 import fm.mimo.ui.screens.home.Action.PrimaryButtonTap
 import fm.mimo.ui.screens.home.ContentItem.ContentWithInput
 import fm.mimo.ui.screens.home.ContentItem.ContentWithoutInput
+import fm.mimo.ui.screens.home.Effect.LessonsDone
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun HomeScreen(
     viewModel: HomeScreenViewModelImpl = hiltViewModel(),
+    onLessonsDone: () -> Unit,
 ) {
     LaunchedEffect(Unit) {
         viewModel.submitAction(Initialize)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collectLatest {
+            when (it) {
+                LessonsDone -> onLessonsDone()
+            }
+        }
     }
 
     val state by viewModel.uiState.collectAsState()
@@ -73,6 +85,17 @@ fun HomeScreen(
             }
             Spacer(Modifier.height(48.dp))
 
+            errorMessage?.let {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = it.asString(),
+                    textAlign = TextAlign.Center,
+                    color = Color.Red,
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
+
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { viewModel.submitAction(PrimaryButtonTap) },
@@ -97,7 +120,7 @@ private fun ContentRow(
             text = content.leadingText.asString(),
         )
         FixedWidthOutlinedTextField(
-            value = content.currentInputText.asString(),
+            value = content.currentInputText,
             onValueChange = onInputValueChange,
             maxChars = content.inputLength,
             outlineHexColor = content.outlineColor,

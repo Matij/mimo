@@ -13,6 +13,8 @@ import fm.mimo.ui.UiText.StringResource
 import fm.mimo.ui.screens.home.Action.Initialize
 import fm.mimo.ui.screens.home.Action.InputValueChange
 import fm.mimo.ui.screens.home.Action.PrimaryButtonTap
+import fm.mimo.ui.screens.home.ContentItem.ContentWithInput
+import fm.mimo.ui.screens.home.Effect.LessonsDone
 import jakarta.inject.Inject
 import kotlinx.coroutines.launch
 
@@ -46,18 +48,34 @@ class HomeScreenViewModelImpl @Inject constructor(
     }
 
     private fun onPrimaryButtonTapped() {
-        val currentLessonIndex = lessons.indexOfFirst { it.id == uiState.value.currentLessonId }
-        updateLessonState(lessons.getOrNull(currentLessonIndex + 1))
+        val contentWithInputOnScreen = uiState.value.contentItems
+            .filterIsInstance<ContentWithInput>()
+            .firstOrNull { it.lessonId == uiState.value.currentLessonId }
+
+        val correctAnswer = validateAnswer(contentWithInputOnScreen)
+
+        if (contentWithInputOnScreen == null || correctAnswer) {
+            val currentLessonIndex = lessons.indexOfFirst { it.id == uiState.value.currentLessonId }
+            val nextLesson = lessons.getOrNull(currentLessonIndex + 1)
+            updateLessonState(nextLesson)
+            if (nextLesson == null) submitEffect(LessonsDone)
+        } else {
+            submitState { copy(errorMessage = StringResource(R.string.error_message_incorrect_answer)) }
+        }
     }
 
     private fun onInputValueChanged(id: Int, newValue: String) {
         submitState {
-            copy(contentItems = contentItems.map {
-                if (it is ContentItem.ContentWithInput && it.lessonId == id) it.copy(
-                    currentInputText = DynamicString(newValue)
-                )
-                else it
-            }, buttonEnabled = newValue.isNotBlank())
+            copy(
+                contentItems = contentItems.map {
+                    if (it is ContentWithInput && it.lessonId == id) it.copy(
+                        currentInputText = newValue,
+                    )
+                    else it
+                },
+                buttonEnabled = newValue.isNotBlank(),
+                errorMessage = if (newValue.isBlank()) null else errorMessage,
+            )
         }
     }
 
@@ -82,12 +100,12 @@ class HomeScreenViewModelImpl @Inject constructor(
         return when {
             hasInput -> {
                 val inputText = computeInputText()
-                ContentItem.ContentWithInput(
+                ContentWithInput(
                     lessonId = id,
                     leadingText = computeLeadingText(),
                     trailingText = computeTrailingText(),
                     inputLength = inputText.length,
-                    expectedInputText = DynamicString(inputText),
+                    expectedInputText = inputText,
                     outlineColor = retrieveOutlineColor()
                 )
             }
@@ -128,5 +146,12 @@ class HomeScreenViewModelImpl @Inject constructor(
         val expectedInputText = computeInputText()
         val field = fields.firstOrNull { it.text == expectedInputText }
         return field?.color
+    }
+
+    private fun validateAnswer(contentItemContentWithInput: ContentWithInput?): Boolean {
+        if (contentItemContentWithInput == null) return false
+        val expectedAnswer = contentItemContentWithInput.expectedInputText
+        val currentInputText = contentItemContentWithInput.currentInputText
+        return currentInputText == expectedAnswer
     }
 }

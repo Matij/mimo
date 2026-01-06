@@ -4,4 +4,6 @@
     <string name="home_button_next_label">Next</string>
     <string name="home_button_run_label">Run</string>
     <string name="home_title_label">Lesson %d</string>
+    <string name="done_screen_message">Congratulations! You\'ve completed all lessons.</string>
+    <string name="error_message_incorrect_answer">Incorrect answer!</string>
 </resources>

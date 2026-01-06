@@ -12,6 +12,7 @@ data class State(
     val title: UiText = DynamicString(""),
     val contentItems: List<ContentItem> = emptyList(),
     val currentLessonId: Int? = null,
+    val errorMessage: UiText? = null,
     val buttonLabel: UiText = StringResource(R.string.home_button_run_label),
     val buttonEnabled: Boolean = true,
 ) : UiState
@@ -21,8 +22,8 @@ sealed interface ContentItem {
         val lessonId: Int,
         val leadingText: UiText,
         val trailingText: UiText,
-        val currentInputText: UiText = DynamicString(""),
-        val expectedInputText: UiText,
+        val currentInputText: String = "",
+        val expectedInputText: String,
         val inputLength: Int,
         val outlineColor: String?,
     ) : ContentItem
@@ -40,5 +41,5 @@ sealed interface Action : UiAction {
 }
 
 sealed interface Effect : UiEffect {
-    data object Error : Effect
+    data object LessonsDone : Effect
 }
