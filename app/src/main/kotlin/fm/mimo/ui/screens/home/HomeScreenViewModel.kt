@@ -42,6 +42,7 @@ class HomeScreenViewModelImpl @Inject constructor(
     }
 
     private fun init() {
+        submitState { copy(emptyStateMessage = StringResource(R.string.home_screen_empty_state_message)) }
         fetchData()
     }
 
@@ -91,6 +92,7 @@ class HomeScreenViewModelImpl @Inject constructor(
         if (lesson == null) return@launch
 
         lessonStartedAt = System.currentTimeMillis()
+        val items = listOf(lesson.buildItems())
 
         submitState {
             copy(
@@ -98,18 +100,20 @@ class HomeScreenViewModelImpl @Inject constructor(
                     R.string.home_title_label,
                     arrayOf(lesson.id)
                 ),
-                contentItems = listOf(lesson.buildItems()),
+                contentItems = items,
                 currentLessonId = lesson.id,
                 buttonLabel = StringResource(R.string.home_button_next_label),
                 buttonEnabled = lesson.hasInput.not(),
+                showEmptyState = items.isEmpty(),
             )
         }
     }
 
-    private fun onLessonCompleted(currentLessonId: Int) = viewModelScope.launch(dispatcherProvider.io()) {
-        val startedAt = lessonStartedAt ?: return@launch
-        storeLessonCompletionUseCase(currentLessonId, startedAt, System.currentTimeMillis())
-    }
+    private fun onLessonCompleted(currentLessonId: Int) =
+        viewModelScope.launch(dispatcherProvider.io()) {
+            val startedAt = lessonStartedAt ?: return@launch
+            storeLessonCompletionUseCase(currentLessonId, startedAt, System.currentTimeMillis())
+        }
 
     private fun Lesson.buildItems(): ContentItem {
         return when {

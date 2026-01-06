@@ -13,6 +13,8 @@ data class State(
     val contentItems: List<ContentItem> = emptyList(),
     val currentLessonId: Int? = null,
     val errorMessage: UiText? = null,
+    val emptyStateMessage: UiText? = null,
+    val showEmptyState: Boolean = false,
     val buttonLabel: UiText = StringResource(R.string.home_button_run_label),
     val buttonEnabled: Boolean = true,
 ) : UiState

@@ -73,4 +73,12 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
+    testImplementation("androidx.test:core:1.7.0}")
+    testImplementation("androidx.test.ext:junit:1.3.0")
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+    testImplementation("io.mockk:mockk:1.13.7")
+    testImplementation("app.cash.turbine:turbine:1.0.0")
 }

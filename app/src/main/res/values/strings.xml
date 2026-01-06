@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Mimo</string>
+    <string name="home_screen_empty_state_message">There are no lessons available.</string>
     <string name="home_button_done_label">Done</string>
     <string name="home_button_next_label">Next</string>
     <string name="home_button_run_label">Run</string>
